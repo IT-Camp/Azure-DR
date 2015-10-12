@@ -1,0 +1,47 @@
+﻿<# AzCopy demo 
+
+ 1. Install AzCopy first
+ 2. Copy this code 
+ 3. Validate source path, destination path and access keys
+ 4. Run it as it is
+
+#>
+
+$theSource.path      = '/Source:https://<mySourceStorageAccountName>.blob.core.windows.net/<mySourceContainerName>'
+$theSource.AccessKey = '/SourceKey:mySourceStorageAccountAccessKeyHere'
+
+<# or simply use yung’s public sample source container to show cross-subscription copying
+
+$theSource.path      = '/Source:https://yctest.blob.core.windows.net/goodtill20150715'
+$theSource.AccessKey = '/SourceKey:Hd6oeJ4MEwXcWV7ADJ2ULVzLR9Om8tsprN8UhBtxYSWG1NndhEYjiy8Cx6tIu5UGoasgc7NyBrYjplxarCAj4g=='
+
+#>
+
+$theDestination.path      = '/Dest:https://,myTargetStorageAccountName>.blob.core.windows.net/<ExistingTargetOrToBeCreatedContainerName>'
+$theDestination.AccessKey = '/DestKey:myTargetStorageAccountAccessKeyHere'
+
+$theSource.pattern         = ''    # Copy all files in the source location
+$theSource.recursion       = '/S'  # and below
+$supressConfirmationPrompt = '/Y'
+$listingOnlyOption         = ''    # or /L
+
+$verbose    = 'on'
+$verboseLog = "/V:$env:USERPROFILE\documents\"+(get-date -format 'mmss')+'.azcopy.verbose.txt'
+
+
+$responsefile = "$($theSource.path) "+
+                "$($theDestination.path) "+ 
+                "$($theSource.AccessKey) "+
+                "$($theDestination.AccessKey) "+
+                "$($theSource.pattern) $($theSource.recursion) $supressConfirmationPrompt "+
+#                "$snapshot "+
+                "$listingOnlyOption "+ 
+                "$verboseLog"
+
+start-process `
+    -FilePath         'C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy\AzCopy.exe' `
+    -WorkingDirectory 'C:\Program Files (x86)\Microsoft SDKs\Azure\AzCopy' `
+    -ArgumentList     "$responsefile" `
+    -wait 
+
+if ($verbose -eq 'on') { notepad $verboseLogfile }  
